@@ -14,6 +14,13 @@ class Account(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     def __repr__(self):
         return f"<Account {self.id}"
+class Card(db.Model):
+    title=db.Column(db.String(100),nullable=False)
+    subtitle=db.Column(db.String(100),nullable=False)
+    text=db.Column(db.String(600),nullable=False)
+    id=db.Column(db.Integer,primary_key=True)
+    def __repr__(self):
+        return f"<Card {self.id}>"
 @app.route("/",methods=["GET","POST"])
 def login():
     if request.method=="POST":
@@ -45,11 +52,6 @@ def register():
             return "Bu kullanıcı adı zaten var"
         return redirect("/")
     return render_template("register.html")
-@app.route("/welcome",methods=["POST"])
-def welcome():
-    name=request.form["name"]
-    password=request.form["password"]
-    return render_template("welcome.html",name=name,password=password)
 @app.route("/home")
 def home_shop():
     if "user_id" not in session:
@@ -98,5 +100,46 @@ def sepet_sil():
         session["sepet"] = sepet
 
     return redirect("/sepet")
+@app.route("/others")
+def projects():
+    return render_template("plusproject.html")
+# İçerik sayfasını çalıştırma
+@app.route('/others/note')
+def index():
+    # DB nesnelerini görüntüleme
+    # Görev #2. DB'deki nesneleri index.html'de görüntüleme
+    cards=Card.query.order_by(Card.id).all()
+
+    return render_template('index.html',
+                           #kartlar = kartlar
+                            cards=cards,
+                           )
+
+@app.route('/others/note/form_create', methods=['GET','POST'])
+def form_create():
+    if request.method == 'POST':
+        title =  request.form['title']
+        subtitle =  request.form['subtitle']
+        text =  request.form['text']
+
+        # Görev #2. Verileri DB'de depolamak için bir yol oluşturma
+        card=Card(title=title,subtitle=subtitle,text=text)
+        db.session.add(card)
+        db.session.commit()
+        return redirect('/others/note')
+    else:
+        return render_template('create_card.html')
+@app.route('/others/note/create')
+def create():
+    return render_template('create_card.html')
+@app.route('/others/note/card/<int:id>')
+def card(id):
+    # Görev #2. Id'ye göre doğru kartı görüntüleme
+    card=Card.query.get(id)
+
+    return render_template('card.html', card=card)
+
 if __name__=="__main__":
+    with app.app_context():
+        db.create_all()
     app.run(host="0.0.0.0",port=5000,debug=True)
