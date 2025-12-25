@@ -8,12 +8,20 @@ body {
     background-color: black;
 }
 .note {
+    display: flex;
     justify-content: center;
     align-items: center;
-    border: 1px cyan;
+    border: 1px  solid cyan;
+    flex-direction: column;
 }
 .note-a {
     text-decoration: none;
     font-size: 30px;
     font-family: Arial, Helvetica, sans-serif;
+    color: aquamarine;
+}
+.note:hover {
+    border-radius: 3px;
+    box-shadow: 0 0 15px cyan;
+    transform: translateY(-4px)
 }
